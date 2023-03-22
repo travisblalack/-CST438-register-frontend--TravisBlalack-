@@ -25,6 +25,7 @@ class SchedList extends Component {
   constructor(props) {
     super(props);
     this.state = { courses: [] };
+    
   } 
   
   componentDidMount() {
@@ -35,7 +36,7 @@ class SchedList extends Component {
     console.log("SchedList.fetchCourses");
     const token = Cookies.get('XSRF-TOKEN');
     
-    fetch(`${SERVER_URL}/schedule?year=${this.props.location.year}&semester=${this.props.location.semester}`, 
+    fetch(`${SERVER_URL}schedule?year=${this.props.location.year}&semester=${this.props.location.semester}`, 
       {  
         method: 'GET', 
         headers: { 'X-XSRF-TOKEN': token }
@@ -68,7 +69,7 @@ class SchedList extends Component {
     if (window.confirm('Are you sure you want to drop the course?')) {
       const token = Cookies.get('XSRF-TOKEN');
       
-      fetch(`${SERVER_URL}/schedule/${id}`,
+      fetch(`${SERVER_URL}schedule/${id}`,
         {
           method: 'DELETE',
           headers: { 'X-XSRF-TOKEN': token }
@@ -99,6 +100,7 @@ class SchedList extends Component {
     const token = Cookies.get('XSRF-TOKEN');
  
     fetch(`${SERVER_URL}/schedule`,
+    
       { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json',
@@ -124,6 +126,38 @@ class SchedList extends Component {
         console.error(err);
     })
   } 
+
+  
+  // Add Student
+  addStudent = (name,email) => {
+    const token = Cookies.get('XSRF-TOKEN');
+ 
+    fetch(`${SERVER_URL}student?name=${this.state.name}&email=${this.state.email}`,
+      { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json',
+                   'X-XSRF-TOKEN': token  }, 
+        body: JSON.stringify(name,email)
+      })
+    .then(res => {
+        if (res.ok) {
+          toast.success("Student successfully added!", {
+              position: toast.POSITION.BOTTOM_LEFT
+          });
+        } else {
+          toast.error("Student already exists!", {
+              position: toast.POSITION.BOTTOM_LEFT
+          });
+          console.error('Post http status =' + res.status);
+        }})
+    .catch(err => {
+      toast.error("Error when adding", {
+            position: toast.POSITION.BOTTOM_LEFT
+        });
+        console.error(err);
+    })
+  } 
+
 
   render() {
      const columns = [
@@ -171,6 +205,10 @@ class SchedList extends Component {
 			    <ButtonGroup>
                   <AddCourse addCourse={this.addCourse}  />
 				</ButtonGroup>
+        <ButtonGroup>
+                  <AddCourse addStudent={this.addStudent}  />
+				</ButtonGroup>
+
               </Grid>
             </Grid>
             <div style={{ height: 400, width: '100%' }}>
